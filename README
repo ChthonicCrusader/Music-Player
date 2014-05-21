@@ -1,0 +1,2 @@
+$javac -classpath jfugue-4.0.3 MyMusicApp.java 
+$java -classpath .:jfugue-4.0.3 MyMusicApp
