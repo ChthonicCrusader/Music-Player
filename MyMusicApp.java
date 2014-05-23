@@ -72,12 +72,12 @@ class Painter extends JPanel
 		b[p].changeColor(1,0,0);
 	}
 
-	public char ithNote(int i)
+	public String ithNote(int i)
 	{
 		if(i>=n)
-		return '?';
+		return "?";
 
-		return b[i].text.charAt(0);
+		return b[i].text;
 	}
 
 
@@ -144,6 +144,8 @@ class MyMusicApp extends JFrame implements KeyListener
 	JFrame frame;
 	int n,p;
 	String[] notes;
+	int downkey; //1 when pressed, 0 else
+	int upkey; //1 when pressed, 0 else
 	//org.jfugue.Player player;
 
 	public MyMusicApp()
@@ -153,10 +155,10 @@ class MyMusicApp extends JFrame implements KeyListener
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		notes=new String[4];
-		notes[0]="A";
-		notes[1]="B";
-		notes[2]="C";
-		notes[3]="D";
+		notes[0]="A#";
+		notes[1]="B4";
+		notes[2]="C6";
+		notes[3]="D#4";
 		n=4;p=0;
 
 		painter=new Painter();
@@ -171,8 +173,7 @@ class MyMusicApp extends JFrame implements KeyListener
 	@Override
 	public void keyTyped(KeyEvent e)
 	{
-		if(e.getKeyChar()=='w')
-			System.out.println("W is typed");
+		
 	}
 	
 	@Override
@@ -205,15 +206,47 @@ class MyMusicApp extends JFrame implements KeyListener
 					break;
 			case 1:	
 					//org.jfugue.Player player;
-					if (e.getKeyChar()!='q')
+					if (e.getKeyCode()==KeyEvent.VK_UP)
 					{
+						upkey=1;
+						//System.out.println("octave up");
+					}
+					else if (e.getKeyCode()==KeyEvent.VK_DOWN)
+					{
+						downkey=1;
+						//System.out.println("octave down");
+					} 
+					else if (e.getKeyChar()!='q')
+					{
+						System.out.println(e.getKeyChar());
 						org.jfugue.Player player=new org.jfugue.Player();
 						if (e.getKeyChar() >='a') //is lower case
-							player.play(new String ( new char[] {Character.toUpperCase(e.getKeyChar())}));
+						{
+							String s=new String ( new char[] {Character.toUpperCase(e.getKeyChar())});
+							if (upkey==1)
+							{
+								s=s.concat("6");
+							}
+							else if (downkey==1)
+							{
+								s=s.concat("4");
+							}
+							System.out.println(s);	
+							player.play(s);
+						}
 						else // if upper case
 						{
 							String s=new String ( new char[] {Character.toUpperCase(e.getKeyChar())});
-							s=s.concat("#");						
+							s=s.concat("#");
+							if (upkey==1)
+							{
+								s=s.concat("6");
+							}
+							else if (downkey==1)
+							{
+								s=s.concat("4");
+							}
+							System.out.println(s);						
 							player.play(s);
 						}
 					}
@@ -223,17 +256,53 @@ class MyMusicApp extends JFrame implements KeyListener
 						frame.repaint();
 					}
 					break;	
-			case 2:	char c=painter.ithNote(p);
-					if(e.getKeyChar()=='q')
+			case 2:	String notetoplay=painter.ithNote(p);
+					char a=e.getKeyChar();
+					//getting the note played
+					String note=new String ( new char[] {Character.toUpperCase(a)});
+					if (e.getKeyCode()==KeyEvent.VK_UP)
+					{
+						upkey=1;
+						return;
+						//System.out.println("octave up");
+					}
+					else if (e.getKeyCode()==KeyEvent.VK_DOWN)
+					{
+						downkey=1;
+						return;
+						//System.out.println("octave down");
+					} 
+					if (a>='a') //lowercase
+					{
+						
+					}
+					else//deciding if its sharp
+					{
+						note=note.concat("#");
+					}
+					//deciding the octace
+					if (upkey==1)
+					{
+						note=note.concat("6");
+					}
+					else if(downkey==1)
+					{
+						note=note.concat("4");
+					}
+					System.out.print(note);
+					System.out.print(" ");
+					System.out.println(notetoplay);
+					//checking the note with the next note
+					if(a=='q')
 					{
 						painter.menu=0;
 						frame.repaint();
 					}
-					else if(e.getKeyChar()==c)
+					else if(note.equals(notetoplay))
 					{
-						System.out.println(c);
+						System.out.println(note);
 						org.jfugue.Player player=new org.jfugue.Player();
-						player.play(new String ( new char[] {c}));
+						player.play(note);
 						painter.changeState(p);
 						p++;
 						frame.repaint();
@@ -254,8 +323,16 @@ class MyMusicApp extends JFrame implements KeyListener
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		if(e.getKeyChar()=='r')
-			System.out.println("r is released");
+		if (e.getKeyCode()==KeyEvent.VK_UP)
+		{
+			upkey=0;
+			//System.out.println("octave normal");
+		}
+		else if (e.getKeyCode()==KeyEvent.VK_DOWN)
+		{
+			downkey=0;
+			//System.out.println("octave normal");
+		} 
 	}
 	public static void main(String[] args)
 	{
@@ -304,3 +381,6 @@ class MyMusicApp extends JFrame implements KeyListener
 			System.out.println("Error in input");
 		}
 */
+
+//javac -classpath .:jfugue-4.0.3.jar MyMusicApp.java
+//java -classpath .:jfugue-4.0.3.jar MyMusicApp
